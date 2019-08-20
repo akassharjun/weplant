@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:we_plant/model/user.dart';
 import 'package:we_plant/pages/home.dart';
 
+import '../constants.dart';
+
 class SignUpPage extends StatefulWidget {
   static const ROUTE = 'signup';
 
@@ -48,13 +50,11 @@ class _SignUpPageState extends State<SignUpPage> {
       password: _passwordController.text,
       clubName: dropdownOption,
       createdBy: 'Admin',
-      createdAt: '',
-      updatedAt: '',
       updatedBy: 'Admin',
     );
 
     Future<http.Response> response = http.post(
-      'http://192.168.1.6:8080/api/v1/users',
+      Constants.URL_USER,
       headers: {'content-type': 'application/json'},
       body: user.toJson(),
     );
@@ -63,7 +63,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
     response.then((onValue) async {
 //      var value = json.decode(onValue.body.toString());
-
+      print("ONVALUE");
+      print(onValue);
       User user = User.fromJson(onValue.body.toString());
 
       SharedPreferences prefs = await SharedPreferences.getInstance();

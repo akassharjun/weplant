@@ -6,6 +6,8 @@ import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:we_plant/model/plant_information.dart';
 
+import '../constants.dart';
+
 class PlantInformationScreen extends StatefulWidget {
   static const String ROUTE = '/plantInfo';
 
@@ -79,7 +81,7 @@ class _PlantInformationScreenState extends State<PlantInformationScreen> {
 
   void savePlantInformation(PlantInformation plantInformation) {
     Future<http.Response> response = http.post(
-      'http://192.168.1.6:8080/api/v1/plantInformation',
+      Constants.URL_PLANT_INFORMATION,
       headers: {'content-type': 'application/json'},
       body: plantInformation.toJson(),
     );
