@@ -114,8 +114,8 @@ class _LoginPageState extends State<LoginPage> {
 
   // Widgets
 
-  Form _buildForm() {
-    final emailTextField = TextFormField(
+  TextFormField _buildEmailTextField() {
+    return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
@@ -140,8 +140,57 @@ class _LoginPageState extends State<LoginPage> {
         return null;
       },
     );
+  }
 
-    final passwordTextField = TextFormField(
+  Form _buildForm() {
+    return Form(
+      key: _formKey,
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.only(
+          left: scaler.getWidth(6),
+          right: scaler.getWidth(6),
+        ),
+        children: <Widget>[
+          Container(child: AppLogo()),
+          SizedBox(height: scaler.getHeight(15)),
+          _buildEmailTextField(),
+          SizedBox(height: scaler.getHeight(2)),
+          _buildForgotPasswordLabel(),
+          SizedBox(height: scaler.getHeight(5)),
+          _buildLoginButton(),
+          _buildForgotPasswordLabel()
+        ],
+      ),
+    );
+  }
+
+  FlatButton _buildForgotPasswordLabel() {
+    return FlatButton(
+      child: Text(
+        'Forgot password?',
+        style: TextStyle(color: Colors.black54),
+      ),
+      onPressed: () {},
+    );
+  }
+
+  RaisedButton _buildLoginButton() {
+    return RaisedButton(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      onPressed: () {
+        _validateLoginCredentials();
+//          Navigator.of(context).pushNamed(HomePage.tag);
+      },
+      color: Colors.green,
+      child: Text('LOGIN', style: TextStyle(color: Colors.white)),
+    );
+  }
+
+  TextFormField _buildPasswordTextField() {
+    return TextFormField(
       controller: _passwordController,
       autofocus: false,
       obscureText: true,
@@ -158,47 +207,6 @@ class _LoginPageState extends State<LoginPage> {
           scaler.getHeight(2),
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      ),
-    );
-
-    final loginButton = RaisedButton(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-      onPressed: () {
-        _validateLoginCredentials();
-//          Navigator.of(context).pushNamed(HomePage.tag);
-      },
-      color: Colors.green,
-      child: Text('LOGIN', style: TextStyle(color: Colors.white)),
-    );
-
-    final forgotLabel = FlatButton(
-      child: Text(
-        'Forgot password?',
-        style: TextStyle(color: Colors.black54),
-      ),
-      onPressed: () {},
-    );
-
-    return Form(
-      key: _formKey,
-      child: ListView(
-        shrinkWrap: true,
-        padding: EdgeInsets.only(
-          left: scaler.getWidth(6),
-          right: scaler.getWidth(6),
-        ),
-        children: <Widget>[
-          Container(child: AppLogo()),
-          SizedBox(height: scaler.getHeight(15)),
-          emailTextField,
-          SizedBox(height: scaler.getHeight(2)),
-          passwordTextField,
-          SizedBox(height: scaler.getHeight(5)),
-          loginButton,
-          forgotLabel
-        ],
       ),
     );
   }

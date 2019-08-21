@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   // Methods
-  
+
   Future _addTreeMarkers() async {
     await homeModel.retrievePreviousPlantInformation();
 
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   // Widgets
-  
+
   GoogleMap _buildGoogleMap() {
     return GoogleMap(
       padding: EdgeInsets.all(5.0),
@@ -130,6 +130,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       mapType: MapType.normal,
       markers: _markers,
       onCameraMove: _onCameraMove,
+      myLocationButtonEnabled: false,
     );
   }
 
@@ -147,9 +148,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: Icon(
                 Icons.my_location,
                 color: Colors.black54,
-                ),
-              backgroundColor: Colors.white,
               ),
+              backgroundColor: Colors.white,
+            ),
             SizedBox(height: scaler.getHeight(2)),
             FloatingActionButton.extended(
               heroTag: "Fab",
@@ -160,14 +161,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 'Plant A Tree',
                 style: TextStyle(
                   fontSize: scaler.getTextSize(11),
-                  ),
                 ),
-              icon: Icon(Icons.toys),
               ),
+              icon: Icon(Icons.toys),
+            ),
           ],
-          ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildTopToolbar(BuildContext context) {
@@ -179,18 +180,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           child: FloatingActionButton(
             onPressed: () {
               Navigator.push(context,
-                                 MaterialPageRoute(builder: (BuildContext context) {
-                                   return SearchByCountryPage(homeModel.plantInformationList);
-                                 }));
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return SearchByCountryPage(homeModel.plantInformationList);
+              }));
             },
             heroTag: "Find",
             child: Icon(
               Icons.search,
               color: Colors.black54,
-              ),
+            ),
             backgroundColor: Colors.white,
-            )),
-      );
+          )),
+    );
   }
 
   Widget _buildAppLogo() {
@@ -200,7 +201,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         decoration: BoxDecoration(
           color: Colors.white70,
           borderRadius: BorderRadius.circular(20.0),
-          ),
+        ),
         height: scaler.getHeight(18),
         width: scaler.getHeight(18),
         child: Center(
@@ -215,8 +216,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     height: scaler.getHeight(10),
 //                          color: Colors.black,
                     child: Image.asset('assets/plant.png'),
-                    ),
                   ),
+                ),
                 Align(
                   alignment: Alignment.center,
                   child: Text(
@@ -226,15 +227,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       fontSize: scaler.getTextSize(15),
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF252525),
-                      ),
                     ),
                   ),
+                ),
               ],
-              ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   @override
@@ -257,6 +258,4 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
     );
   }
-
- 
 }
