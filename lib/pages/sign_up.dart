@@ -62,9 +62,6 @@ class _SignUpPageState extends State<SignUpPage> {
     print(user.toJson());
 
     response.then((onValue) async {
-//      var value = json.decode(onValue.body.toString());
-      print("ONVALUE");
-      print(onValue);
       User user = User.fromJson(onValue.body.toString());
 
       SharedPreferences prefs = await SharedPreferences.getInstance();

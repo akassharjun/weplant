@@ -24,6 +24,8 @@ class _PlantInformationScreenState extends State<PlantInformationScreen> {
 
   int numberOfSeeds = 1;
 
+  bool sendingData = false;
+
   Future<Map<String, String>> getLocation() async {
     LocationData currentLocation;
     Map<String, String> locationData = {};
@@ -51,7 +53,15 @@ class _PlantInformationScreenState extends State<PlantInformationScreen> {
   Future submitForm() async {
     Map<String, String> locationData = await getLocation();
 
+    setState(() {
+      sendingData = true;
+    });
+
     if (locationData.isEmpty) {
+      setState(() {
+        sendingData = false;
+      });
+
       return;
     }
 
@@ -79,32 +89,33 @@ class _PlantInformationScreenState extends State<PlantInformationScreen> {
     }
   }
 
-  void savePlantInformation(PlantInformation plantInformation) {
-    Future<http.Response> response = http.post(
+  Future savePlantInformation(PlantInformation plantInformation) async {
+    http.Response response = await http.post(
       Constants.URL_PLANT_INFORMATION,
       headers: {'content-type': 'application/json'},
       body: plantInformation.toJson(),
     );
 
-    response.then((onValue) {
-      print("OnVALUE");
-      print(onValue.body);
-      print(plantInformation.toJson());
-      if (onValue.statusCode != 200) {
-//        Scaffold.of(context).showSnackBar(
-//            SnackBar(content: Text("There was an error try again!")));
-      }
-    });
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+    } else {
+      setState(() {
+        sendingData = false;
+      });
+    }
   }
 
-  RaisedButton _buildSubmitButton() {
+  Widget _buildSubmitButton() {
     return RaisedButton(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
       onPressed: submitForm,
       color: Colors.green,
-      child: Text('SUBMIT', style: TextStyle(color: Colors.white)),
+      child: Text(
+        'SUBMIT',
+        style: TextStyle(color: Colors.white),
+      ),
     );
   }
 
@@ -115,75 +126,80 @@ class _PlantInformationScreenState extends State<PlantInformationScreen> {
         backgroundColor: Colors.green,
         title: Text("Enter Information"),
       ),
-      body: Container(
-        child: SafeArea(
-          child: Container(
-            padding: EdgeInsets.all(12.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    "Number Of Seeds planted",
-                    style: TextStyle(
-                      fontSize: scaler.getTextSize(12),
-                    ),
-                  ),
-                  SizedBox(
-                    height: scaler.getHeight(3),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      FloatingActionButton(
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        elevation: 0.0,
-                        heroTag: "Remove",
-                        backgroundColor: Colors.red,
-                        onPressed: () {
-                          if (numberOfSeeds == 1) {
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text(
-                                    'You have to plant atleast a minimum of 1 seed.')));
-                            return;
-                          }
-                          setState(() {
-                            numberOfSeeds--;
-                          });
-                        },
-                        child: Icon(Icons.remove),
-                      ),
-                      Text(
-                        numberOfSeeds.toString(),
-                        style: TextStyle(
-                          fontSize: scaler.getTextSize(18),
-                          fontWeight: FontWeight.bold,
+      body: Center(
+        child: Container(
+          child: SafeArea(
+              child: !sendingData
+                  ? Container(
+                      padding: EdgeInsets.all(12.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                              "Number Of Seeds planted",
+                              style: TextStyle(
+                                fontSize: scaler.getTextSize(12),
+                              ),
+                            ),
+                            SizedBox(
+                              height: scaler.getHeight(3),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: <Widget>[
+                                FloatingActionButton(
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  elevation: 0.0,
+                                  heroTag: "Remove",
+                                  backgroundColor: Colors.red,
+                                  onPressed: () {
+                                    if (numberOfSeeds == 1) {
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                          content: Text(
+                                              'You have to plant atleast a minimum of 1 seed.')));
+                                      return;
+                                    }
+                                    setState(() {
+                                      numberOfSeeds--;
+                                    });
+                                  },
+                                  child: Icon(Icons.remove),
+                                ),
+                                Text(
+                                  numberOfSeeds.toString(),
+                                  style: TextStyle(
+                                    fontSize: scaler.getTextSize(18),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                FloatingActionButton(
+                                  elevation: 0.0,
+                                  heroTag: "Add",
+                                  backgroundColor: Colors.green,
+                                  onPressed: () {
+                                    setState(() {
+                                      numberOfSeeds++;
+                                    });
+
+                                  },
+                                  child: Icon(Icons.add),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: scaler.getHeight(5),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: _buildSubmitButton(),
+                            ),
+                          ],
                         ),
                       ),
-                      FloatingActionButton(
-                        elevation: 0.0,
-                        heroTag: "Add",
-                        backgroundColor: Colors.green,
-                        onPressed: () {
-                          setState(() {
-                            numberOfSeeds++;
-                          });
-                        },
-                        child: Icon(Icons.add),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: scaler.getHeight(5),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: _buildSubmitButton(),
-                  ),
-                ],
-              ),
-            ),
-          ),
+                    )
+                  : CircularProgressIndicator()),
         ),
       ),
     );

@@ -16,6 +16,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // Variables
   ScreenScaler scaler;
   final _formKey = GlobalKey<FormState>();
 
@@ -25,6 +26,10 @@ class _LoginPageState extends State<LoginPage> {
   String email = '';
   String password = '';
 
+  bool isLoading = false;
+
+  // Functions
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -33,13 +38,46 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void validateLoginCredentials() {
+  // Helper functions
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Invalid Credientials"),
+          content: new Text("Your email/password is incorrect"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future _saveSharedPreferences(User user) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('userID', user.id);
+    await prefs.setString('clubName', user.clubName);
+    await prefs.setString('email', user.email);
+    await prefs.setBool('isLoggedIn', true);
+  }
+
+  Future _validateLoginCredentials() async {
+    setState(() {
+      isLoading = true;
+    });
+
     if (_formKey.currentState.validate()) {
       email = _emailController.text;
       password = _passwordController.text;
-
-      print(password);
-      print(email);
 
       User user = User(
         id: 0,
@@ -52,35 +90,31 @@ class _LoginPageState extends State<LoginPage> {
         updatedAt: '',
         updatedBy: '',
       );
-      Future<http.Response> response = http.post(
+
+      http.Response response = await http.post(
         Constants.URL_USER,
         headers: {'content-type': 'application/json'},
         body: user.toJson(),
       );
 
-      response.then((onValue) async {
-        if (onValue.body.toString().isEmpty) {
-          Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text("Invalid Login Credentials")));
-        } else {
-          User user = User.fromJson(onValue.body.toString());
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('userID', user.id);
-          await prefs.setString('clubName', user.clubName);
-          await prefs.setString('email', user.email);
+      if (response.body.toString().isNotEmpty) {
+        User user = User.fromJson(response.body.toString());
 
-          await prefs.setBool('isLoggedIn', true);
-
-          Navigator.pushNamed(context, HomePage.ROUTE);
-        }
+        _saveSharedPreferences(user);
+        Navigator.pushNamed(context, HomePage.ROUTE);
+      } else {
+        _showDialog();
+      }
+    } else {
+      setState(() {
+        isLoading = false;
       });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    scaler = ScreenScaler()..init(context);
+  // Widgets
 
+  Form _buildForm() {
     final emailTextField = TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
@@ -132,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(24),
       ),
       onPressed: () {
-        validateLoginCredentials();
+        _validateLoginCredentials();
 //          Navigator.of(context).pushNamed(HomePage.tag);
       },
       color: Colors.green,
@@ -147,6 +181,30 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {},
     );
 
+    return Form(
+      key: _formKey,
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.only(
+          left: scaler.getWidth(6),
+          right: scaler.getWidth(6),
+        ),
+        children: <Widget>[
+          Container(child: AppLogo()),
+          SizedBox(height: scaler.getHeight(15)),
+          emailTextField,
+          SizedBox(height: scaler.getHeight(2)),
+          passwordTextField,
+          SizedBox(height: scaler.getHeight(5)),
+          loginButton,
+          forgotLabel
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     scaler = ScreenScaler()..init(context);
 
     return Scaffold(
@@ -159,26 +217,7 @@ class _LoginPageState extends State<LoginPage> {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
         child: Center(
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
-              padding: EdgeInsets.only(
-                left: scaler.getWidth(6),
-                right: scaler.getWidth(6),
-              ),
-              children: <Widget>[
-                Container(child: AppLogo()),
-                SizedBox(height: scaler.getHeight(15)),
-                emailTextField,
-                SizedBox(height: scaler.getHeight(2)),
-                passwordTextField,
-                SizedBox(height: scaler.getHeight(5)),
-                loginButton,
-                forgotLabel
-              ],
-            ),
-          ),
+          child: isLoading ? CircularProgressIndicator() : _buildForm(),
         ),
       ),
     );
