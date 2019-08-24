@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screen_scaler/flutter_screen_scaler.dart';
 import 'package:http/http.dart' as http;
@@ -70,7 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
       await prefs.setString('email', user.email);
       await prefs.setBool('isLoggedIn', true);
 
-      Navigator.pushNamed(context, HomePage.ROUTE);
+      Navigator.pushReplacementNamed(context, HomePage.ROUTE);
     });
   }
 
@@ -140,12 +142,19 @@ class _SignUpPageState extends State<SignUpPage> {
       width: double.infinity,
       child: InputDecorator(
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(
-            scaler.getWidth(3),
-            scaler.getHeight(-1),
-            scaler.getWidth(3),
-            scaler.getHeight(-1),
-          ),
+          contentPadding: Platform.isAndroid
+              ? EdgeInsets.fromLTRB(
+                  scaler.getWidth(3),
+                  scaler.getHeight(-1),
+                  scaler.getWidth(3),
+                  scaler.getHeight(-1),
+                )
+              : EdgeInsets.fromLTRB(
+                  scaler.getWidth(3),
+                  scaler.getHeight(0.5),
+                  scaler.getWidth(3),
+                  scaler.getHeight(0.5),
+                ),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(scaler.getTextSize(18))),
         ),
@@ -193,8 +202,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 scaler.getHeight(2),
               ),
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(scaler.getTextSize(15))),
+                borderRadius: BorderRadius.circular(
+                  scaler.getTextSize(15),
+                ),
+              ),
             ),
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a club name!';
+              }
+              return null;
+            },
           )
         : Container();
   }
@@ -264,7 +282,7 @@ class _SignUpPageState extends State<SignUpPage> {
             borderRadius: BorderRadius.circular(scaler.getTextSize(15))),
       ),
       validator: (value) {
-        if (!value.contains('@')) {
+        if (!value.contains('@') || !value.contains('.')) {
           return 'Please enter a valid email address';
         }
         return null;
@@ -285,11 +303,14 @@ class _SignUpPageState extends State<SignUpPage> {
           scaler.getHeight(2),
         ),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(scaler.getTextSize(15))),
+          borderRadius: BorderRadius.circular(
+            scaler.getTextSize(15),
+          ),
+        ),
       ),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Please enter some text';
+          return 'Please enter a name!';
         }
         return null;
       },

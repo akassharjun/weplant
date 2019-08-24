@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
         User user = User.fromJson(response.body.toString());
 
         _saveSharedPreferences(user);
-        Navigator.pushNamed(context, HomePage.ROUTE);
+        Navigator.pushReplacementNamed(context, HomePage.ROUTE);
       } else {
         _showDialog();
       }
@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: scaler.getHeight(15)),
           _buildEmailTextField(),
           SizedBox(height: scaler.getHeight(2)),
-          _buildForgotPasswordLabel(),
+          _buildPasswordTextField(),
           SizedBox(height: scaler.getHeight(5)),
           _buildLoginButton(),
           _buildForgotPasswordLabel()
